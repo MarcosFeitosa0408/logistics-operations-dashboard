@@ -1,0 +1,345 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 0 1rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  margin-bottom: 1.25rem;
+}
+.dash-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.dash-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.period-pills { display: flex; gap: 6px; }
+.pill {
+  font-size: 11px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary);
+  color: var(--color-text-secondary); background: transparent; transition: all 0.15s;
+}
+.pill.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.kpi-label { font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi-delta { font-size: 11px; margin-top: 5px; display: flex; align-items: center; gap: 3px; }
+.delta-up { color: #0F6E56; }
+.delta-down { color: #A32D2D; }
+
+.charts-row { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 12px; margin-bottom: 12px; }
+.chart-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem 1.25rem;
+}
+.chart-card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.chart-card-sub { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+.leg-sq { width: 10px; height: 10px; border-radius: 2px; }
+
+.bottom-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; margin-bottom: 1.25rem; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+th { font-size: 10px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; }
+td { padding: 7px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+
+.status-pill { font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+.s-ok { background: #E1F5EE; color: #085041; }
+.s-warn { background: #FAEEDA; color: #633806; }
+.s-err { background: #FCEBEB; color: #791F1F; }
+
+.mini-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.mini-bar-track { flex: 1; height: 4px; background: var(--color-background-secondary); border-radius: 999px; overflow: hidden; }
+.mini-bar-fill { height: 100%; border-radius: 999px; }
+
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 0.5rem; }
+.action-btn {
+  font-size: 12px; padding: 7px 14px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  cursor: pointer; background: transparent;
+  color: var(--color-text-primary);
+  display: flex; align-items: center; gap: 5px;
+  transition: background 0.15s;
+}
+.action-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<h2 class="sr-only">Dashboard de operações e logística — análise histórica de entregas, SLA, custos e performance de rotas</h2>
+
+<div class="dash-header">
+  <div>
+    <div class="dash-title"><i class="ti ti-truck" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>Operações & Logística</div>
+    <div class="dash-sub">Análise histórica · Jan – Mai 2026</div>
+  </div>
+  <div class="period-pills">
+    <button class="pill" onclick="setPeriod(this,'3m')">3M</button>
+    <button class="pill active" onclick="setPeriod(this,'6m')">6M</button>
+    <button class="pill" onclick="setPeriod(this,'1a')">1A</button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi-label">Entregas realizadas</div>
+    <div class="kpi-value" id="kpi-entregas">48.320</div>
+    <div class="kpi-delta delta-up"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i><span>+12% vs período anterior</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">SLA no prazo</div>
+    <div class="kpi-value" id="kpi-sla">91,4%</div>
+    <div class="kpi-delta delta-up"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i><span>+3,1 p.p.</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Custo médio / entrega</div>
+    <div class="kpi-value" id="kpi-custo">R$ 18,70</div>
+    <div class="kpi-delta delta-down"><i class="ti ti-trending-down" style="font-size:12px" aria-hidden="true"></i><span>+R$ 1,20 vs anterior</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Tempo médio de entrega</div>
+    <div class="kpi-value" id="kpi-tempo">2,3 dias</div>
+    <div class="kpi-delta delta-up"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i><span>−0,4 dias</span></div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-card-title">Volume de entregas & SLA mensal</div>
+    <div class="chart-card-sub">Últimos 6 meses — barras = volume, linha = % SLA no prazo</div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sq" style="background:#378ADD"></span>Entregas</span>
+      <span class="leg-item"><span class="leg-sq" style="background:#1D9E75"></span>SLA %</span>
+    </div>
+    <div style="position:relative;width:100%;height:220px;">
+      <canvas id="chartMain" role="img" aria-label="Gráfico de volume de entregas mensais e percentual de SLA de dezembro a maio">Volume: dez 6800, jan 7200, fev 7800, mar 8400, abr 9100, mai 9020. SLA: 85%, 86%, 88%, 90%, 92%, 91%.</canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-title">Distribuição por status</div>
+    <div class="chart-card-sub">Acumulado no período</div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sq" style="background:#1D9E75"></span>No prazo 91%</span>
+      <span class="leg-item"><span class="leg-sq" style="background:#EF9F27"></span>Atraso leve 6%</span>
+      <span class="leg-item"><span class="leg-sq" style="background:#E24B4A"></span>Atraso crítico 3%</span>
+    </div>
+    <div style="position:relative;width:100%;height:200px;">
+      <canvas id="chartDona" role="img" aria-label="Gráfico de rosca com distribuição de status: no prazo 91%, atraso leve 6%, atraso crítico 3%">No prazo: 91%. Atraso leve: 6%. Atraso crítico: 3%.</canvas>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-row">
+  <div class="chart-card">
+    <div class="chart-card-title">Custo por entrega — tendência</div>
+    <div class="chart-card-sub">R$ médio · últimos 6 meses</div>
+    <div style="position:relative;width:100%;height:170px;">
+      <canvas id="chartCusto" role="img" aria-label="Gráfico de linha com custo médio por entrega: dez R$16,20, jan R$16,80, fev R$17,50, mar R$17,90, abr R$18,40, mai R$18,70">Custo: dez 16.20, jan 16.80, fev 17.50, mar 17.90, abr 18.40, mai 18.70.</canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-title">Performance por rota</div>
+    <div class="chart-card-sub">SLA e volume acumulado</div>
+    <div class="table-wrap" style="margin-top:4px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:26%">Rota</th>
+            <th style="width:20%">Status</th>
+            <th style="width:30%">SLA</th>
+            <th style="width:24%">Entregas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SP → RJ</td>
+            <td><span class="status-pill s-ok">No prazo</span></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width:95%;background:#1D9E75;"></div></div>
+                <span style="font-size:11px;color:var(--color-text-secondary);">95%</span>
+              </div>
+            </td>
+            <td style="font-size:11px;">14.820</td>
+          </tr>
+          <tr>
+            <td>SP → MG</td>
+            <td><span class="status-pill s-ok">No prazo</span></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width:91%;background:#1D9E75;"></div></div>
+                <span style="font-size:11px;color:var(--color-text-secondary);">91%</span>
+              </div>
+            </td>
+            <td style="font-size:11px;">11.240</td>
+          </tr>
+          <tr>
+            <td>SP → RS</td>
+            <td><span class="status-pill s-warn">Atenção</span></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width:82%;background:#EF9F27;"></div></div>
+                <span style="font-size:11px;color:var(--color-text-secondary);">82%</span>
+              </div>
+            </td>
+            <td style="font-size:11px;">9.610</td>
+          </tr>
+          <tr>
+            <td>SP → BA</td>
+            <td><span class="status-pill s-err">Crítico</span></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width:71%;background:#E24B4A;"></div></div>
+                <span style="font-size:11px;color:var(--color-text-secondary);">71%</span>
+              </div>
+            </td>
+            <td style="font-size:11px;">7.380</td>
+          </tr>
+          <tr>
+            <td>SP → PE</td>
+            <td><span class="status-pill s-warn">Atenção</span></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width:79%;background:#EF9F27;"></div></div>
+                <span style="font-size:11px;color:var(--color-text-secondary);">79%</span>
+              </div>
+            </td>
+            <td style="font-size:11px;">5.270</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="action-row">
+  <button class="action-btn" onclick="sendPrompt('Quais são as principais causas de atraso na rota SP → BA e o que posso fazer para melhorar o SLA?')">
+    <i class="ti ti-search" style="font-size:14px" aria-hidden="true"></i> Analisar rota crítica ↗
+  </button>
+  <button class="action-btn" onclick="sendPrompt('Como posso reduzir o custo médio por entrega que está subindo nos últimos meses?')">
+    <i class="ti ti-coin" style="font-size:14px" aria-hidden="true"></i> Otimizar custos ↗
+  </button>
+  <button class="action-btn" onclick="sendPrompt('Gere um relatório executivo de operações e logística com base nos dados do dashboard')">
+    <i class="ti ti-file-text" style="font-size:14px" aria-hidden="true"></i> Relatório executivo ↗
+  </button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const meses = ['Dez','Jan','Fev','Mar','Abr','Mai'];
+
+const ctxMain = document.getElementById('chartMain').getContext('2d');
+new Chart(ctxMain, {
+  data: {
+    labels: meses,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Entregas',
+        data: [6800,7200,7800,8400,9100,9020],
+        backgroundColor: '#B5D4F4',
+        borderColor: '#378ADD',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 2
+      },
+      {
+        type: 'line',
+        label: 'SLA %',
+        data: [85,86,88,90,92,91],
+        borderColor: '#1D9E75',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: '#1D9E75',
+        tension: 0.35,
+        yAxisID: 'y2',
+        order: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+    scales: {
+      y: {
+        type: 'linear', position: 'left',
+        ticks: { font: { size: 11 }, color: '#888780', callback: v => v.toLocaleString('pt-BR') },
+        grid: { color: 'rgba(136,135,128,0.12)' }
+      },
+      y2: {
+        type: 'linear', position: 'right',
+        min: 80, max: 100,
+        ticks: { font: { size: 11 }, color: '#1D9E75', callback: v => v + '%' },
+        grid: { drawOnChartArea: false }
+      },
+      x: { ticks: { font: { size: 11 }, color: '#888780', autoSkip: false } }
+    }
+  }
+});
+
+const ctxDona = document.getElementById('chartDona').getContext('2d');
+new Chart(ctxDona, {
+  type: 'doughnut',
+  data: {
+    labels: ['No prazo','Atraso leve','Atraso crítico'],
+    datasets: [{
+      data: [91,6,3],
+      backgroundColor: ['#1D9E75','#EF9F27','#E24B4A'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } }
+    }
+  }
+});
+
+const ctxCusto = document.getElementById('chartCusto').getContext('2d');
+new Chart(ctxCusto, {
+  type: 'line',
+  data: {
+    labels: meses,
+    datasets: [{
+      label: 'Custo médio',
+      data: [16.20,16.80,17.50,17.90,18.40,18.70],
+      borderColor: '#D85A30',
+      backgroundColor: 'rgba(216,90,48,0.07)',
+      borderWidth: 2,
+      fill: true,
+      pointRadius: 4,
+      pointBackgroundColor: '#D85A30',
+      tension: 0.35
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toFixed(2) } } },
+    scales: {
+      y: {
+        min: 15,
+        ticks: { font: { size: 11 }, color: '#888780', callback: v => 'R$ ' + v.toFixed(0) },
+        grid: { color: 'rgba(136,135,128,0.12)' }
+      },
+      x: { ticks: { font: { size: 11 }, color: '#888780', autoSkip: false } }
+    }
+  }
+});
+
+function setPeriod(el, period) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
